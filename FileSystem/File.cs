@@ -1,54 +1,87 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace WebServer.Files
 {
-	class File : FolderEntry
+	public class File : IFolderEntry
 	{
-		public string Path { get; set; }
-		public string Name { get; set; }
+		public string Path
+		{
+			get
+			{
+				return info.FullName;
+			}
+		}
+		public string Name
+		{
+			get
+			{
+				return info.Name;
+			}
+		}
 
-		private string CachedContent;
-		private FileInfo file;
+		internal byte[] CachedContent = new byte[0];
+		internal FileInfo info;
 		public File(string path)
 		{
-			Path = path;
-			file = new FileInfo(Path);
-			Name = file.Name;
+			info = new FileInfo(path);
 		}
-
-
-		public string Read()
+		public File(FileInfo Fileinfo)
 		{
-			if (string.IsNullOrEmpty(CachedContent))
-			{
-				Refresh();
-			}
-			return CachedContent;
+			info = Fileinfo;
+		}
+        public void ToString(string indent, bool last)
+        {
+            Console.Write(indent);
+            if (last)
+            {
+                Console.Write("└─┬");
+                indent += "  ";
+            }
+            else
+            {
+                Console.Write("├─");
+                indent += "├─";
+            }
+            Console.WriteLine(Name);
+        }
+
+        public virtual string ReadString()
+		{
+            if (CachedContent.Length == 0)
+                Refresh();
+            string text = System.Text.Encoding.UTF8.GetString(CachedContent);
+            return text;
 		}
 
+        public virtual byte[] ReadBytes()
+        {
+            if(CachedContent.Length == 0)
+                Refresh();
+            return CachedContent;
+        }
 		public void Write(string content, bool overwrite = false)
 		{
-			if (!overwrite) {
-				using (StreamWriter writer = new StreamWriter(file.OpenWrite()))
-					writer.Write(content);
-				CachedContent += content;
+			if (!overwrite)
+			{
+                string text = System.Text.Encoding.UTF8.GetString(CachedContent);
+				text += content;
+				CachedContent = System.Text.Encoding.UTF8.GetBytes(text);
 			}
-			else {
-				using (StreamWriter writer = new StreamWriter(new FileStream(Path, FileMode.Truncate)))
-					writer.Write(content);
-				CachedContent = content;
-			}
-					
-		}
+			else
+			{
+				CachedContent = System.Text.Encoding.UTF8.GetBytes(content);
+            }
+
+        }
 		public void Refresh()
 		{
-			using (StreamReader reader = file.OpenText())
-			{
-				string line;
-				while ((line = reader.ReadLine()) != null)
-					CachedContent += line + "\n";
-			}
+            using (FileStream fs = System.IO.File.Open(Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                CachedContent = new byte[fs.Length];
+                fs.Read(CachedContent, 0, CachedContent.Length);
+            }
+            
 		}
 	}
 }

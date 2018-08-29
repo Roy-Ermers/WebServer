@@ -2,11 +2,13 @@ using System;
 
 namespace WebServer.Files
 {
-	interface FolderEntry
+	public interface IFolderEntry
 	{
-		string Path { get; set; }
+		string Path { get; }
 
-		string Name { get; set; }
-		
-	}
+		string Name { get; }
+
+        void ToString(string indent, bool last);
+
+    }
 }

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "WebServer": {
+      "commandName": "Project",
+      "commandLineArgs": "-r testsite --port 43000",
+      "workingDirectory": "C:\\Users\\dange\\source\\repos\\WebServer"
+    }
+  }
+}

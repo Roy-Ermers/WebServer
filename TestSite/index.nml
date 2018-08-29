@@ -3,8 +3,11 @@
 <head>
 
     <body>
+        <p>Test</p>
+        <img src="/icon.png">
         <content src="/content/index.md"></content>
     </body>
+
 </head>
 
 </html>
